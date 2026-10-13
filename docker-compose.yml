@@ -1,0 +1,135 @@
+name: eqms-stack
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 (Primary Database & Append-Only Audit Trail)
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: eqms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eqms_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eqms_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-eqms}
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eqms_user} -d ${POSTGRES_DB:-eqms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eqms-net
+
+  # ---------------------------------------------------------------------------
+  # MinIO (S3 Compatible Storage for Immutable / WORM Records)
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: eqms-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eqms-net
+
+  # ---------------------------------------------------------------------------
+  # Keycloak (IAM: OIDC, MFA, RBAC - 21 CFR §11.10(d), §11.300)
+  # ---------------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: eqms-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HTTP_PORT: 8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - eqms-net
+
+  # ---------------------------------------------------------------------------
+  # EU DSS (Digital Signature Service - PAdES 3-step Sign & Validate)
+  # ---------------------------------------------------------------------------
+  dss:
+    image: esig/dss-demonstrations:latest
+    container_name: eqms-dss
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - eqms-net
+
+  # ---------------------------------------------------------------------------
+  # Qdrant (Vector Database for Approved SOP & Regulation RAG)
+  # ---------------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: eqms-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - eqms-net
+
+  # ---------------------------------------------------------------------------
+  # FastAPI Core API Service
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eqms-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-eqms_user}:${POSTGRES_PASSWORD:-eqms_dev_password}@db:5432/${POSTGRES_DB:-eqms}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin123}
+      - DSS_BASE_URL=http://dss:8080/services/rest
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - eqms-net
+
+volumes:
+  postgres_data:
+  minio_data:
+  qdrant_data:
+
+networks:
+  eqms-net:
+    driver: bridge
