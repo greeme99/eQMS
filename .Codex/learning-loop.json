@@ -1,0 +1,9 @@
+{
+  "memory_max_chars": 2000,
+  "user_max_chars": 1200,
+  "stale_after_days": 30,
+  "archive_after_days": 90,
+  "require_user_approval": true,
+  "curator_scope": "agent-created-only",
+  "delete_archived_skills": false
+}

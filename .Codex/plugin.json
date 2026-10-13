@@ -1,0 +1,24 @@
+{
+  "name": "hermes-growing-agent",
+  "version": "1.1.0",
+  "description": "Install a Hermes-inspired closed learning loop and Ponytail minimal-code rules in Codex projects.",
+  "author": {
+    "name": "Local Codex Harness"
+  },
+  "license": "MIT",
+  "keywords": ["codex", "memory", "skills", "learning-loop", "ponytail", "yagni"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hermes Growing Agent",
+    "shortDescription": "Portable closed learning loop for Codex projects.",
+    "longDescription": "Installs bounded memory, approval-gated learning drafts, reusable skills, usage tracking, reversible skill curation, and vendored Ponytail minimal-code guidance into a target Codex project.",
+    "developerName": "Local Codex Harness",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Set up the growing-agent loop in this project.",
+      "Review pending learning drafts.",
+      "Apply Ponytail, then run the skill curator in dry-run mode."
+    ]
+  }
+}

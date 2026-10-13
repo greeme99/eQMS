@@ -1,0 +1,19 @@
+{
+  "name": "hermes-growing-agent",
+  "version": "1.1.0",
+  "source": "/Users/greeme/Downloads/AllthatCodexHarness_260729/payload/hermes-growing-agent",
+  "platform_note": "Installed with POSIX paths on macOS; Windows installer not used.",
+  "managed_hashes": {
+    "GROWING-AGENT.md": "b84d4db1ddb5d9ea00c5331e5ce38f1462ffb6bc4ba850ee46b65ce460d39f31",
+    ".Codex/scripts/Resolve-LearningDraft.ps1": "3d577654463e22577960fe27852d8a64da35ea02275e2e22dfbab97dbede7038",
+    ".Codex/scripts/Record-SkillUsage.ps1": "e4f153e1e274d48b6a1fb243a94dd5c304fad22a73e8a6125eb0e87500220c7d",
+    ".Codex/scripts/Invoke-Curator.ps1": "49b58c9586480d70224953f7137201415e09db96208e332a94bf94bf756be716",
+    ".Codex/scripts/Test-LearningLoop.ps1": "09b92d81843f976d6f8b3b402454072faa36a10ad9e6ab68511b44d9c16634ca",
+    ".Codex/skills/project-workflow/SKILL.md": "bcafebfd7b757250c83fa0ecf9aab7d2072a88b5bf2c03abc8b1bbc6c6a5c1a8",
+    ".Codex/skills/ponytail/SKILL.md": "46a57e26a2632e7fa40eae6a3cf3011ccdc4d8db19d8f8617907d6b5deef055e",
+    ".Codex/skills/ponytail-review/SKILL.md": "6c8b7e5c897a406b66da6aabda7fa6509e8d1d447e73e602265d7986497445d1",
+    ".Codex/skills/pending/README.md": "e3f2748e54a66393809eee45f0896804f9183e2d2de7603a810738fc31b0b136",
+    ".Codex/memory/pending/README.md": "94b73b6478a05d8e5749defb575772286824aef6c812ca2027ae904d0bd37860",
+    "memory/pending/README.md": "675b63a52deccfa45200b2977d73da166b9bea3d3d261ff0c6f43f984ddd7e10"
+  }
+}
